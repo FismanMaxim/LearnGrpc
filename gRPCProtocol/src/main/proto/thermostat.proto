@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option java_package = "com.example";
+option java_multiple_files = true;
+
+message Empty {
+
+}
+
+message ThermostatIdMessage {
+  int64 id = 1;
+}
+
+enum ThermostatHeatingStatus {
+  OFF = 0;
+  COOLING = 1;
+  HEATING = 2;
+}
+
+message GetThermostatStatusResponse {
+  int64 id = 1;
+  string name  = 2;
+  double currentTemperature = 3;
+  double targetTemperature = 4;
+  ThermostatHeatingStatus heatingStatus = 5;
+}
+
+message CalibrateThermostatRequest {
+  int64 id = 1;
+  double currentTemperature = 2;
+}
+
+message AdjustTemperatureRequest {
+  int64 id = 1;
+  double targetTemperature = 2;
+}
+
+message MonitorCurrentTemperatureRequest {
+  ThermostatIdMessage thermostatId = 1;
+  int64 durationMs = 2;
+}
+
+message MonitorCurrentTemperatureResponse {
+  double currentTemperature = 1;
+}
+
+message CheckConnectionWithThermostatResponse {
+  int32 countConnectionAttempts = 1;
+}
+
+service GrpcThermostatService {
+  // Unary RPC
+  rpc GetThermostatStatus(ThermostatIdMessage) returns (GetThermostatStatusResponse);
+
+  // Server streaming RPC
+  rpc MonitorCurrentTemperature(MonitorCurrentTemperatureRequest) returns (stream MonitorCurrentTemperatureResponse);
+
+  // Client streaming RPC
+  rpc CheckConnectionWithThermostat(stream Empty) returns (CheckConnectionWithThermostatResponse);
+
+  // Bidirectional streaming RPC
+  rpc AdjustTemperature(stream AdjustTemperatureRequest) returns (stream Empty);
+}
